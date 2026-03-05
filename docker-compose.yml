@@ -3,7 +3,7 @@ version: '3.8'
 services:
   link-hunter:
     build: .
-    image: link-hunter:1.0.1
+    pull_policy: never
     container_name: link-hunter
     restart: unless-stopped
     ports:
@@ -13,4 +13,5 @@ services:
       - PORT=3100
       # Set HOST_IP to your server's LAN IP so Portainer generates the correct link
       # e.g. HOST_IP=10.10.0.100
+
 
