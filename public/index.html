@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Link Hunter — jDownloader URL Scraper</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #0d0f14;
+            --bg-card: #13161d;
+            --bg-hover: #1a1d27;
+            --border: rgba(255, 255, 255, .07);
+            --accent: #6366f1;
+            --accent-2: #818cf8;
+            --green: #10b981;
+            --amber: #f59e0b;
+            --red: #ef4444;
+            --sky: #38bdf8;
+            --purple: #a78bfa;
+            --pink: #f472b6;
+            --text-1: #f1f5f9;
+            --text-2: #94a3b8;
+            --text-3: #475569;
+            --radius: 10px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text-1);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ─── Header ─── */
+        header {
+            padding: 20px 32px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(13, 15, 20, .95);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 0 20px rgba(99, 102, 241, .4);
+        }
+
+        .logo-text h1 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .logo-text p {
+            font-size: 12px;
+            color: var(--text-2);
+            margin-top: 2px;
+        }
+
+        header .spacer {
+            flex: 1;
+        }
+
+        .header-hint {
+            font-size: 12px;
+            color: var(--text-3);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 12px;
+        }
+
+        /* ─── Main ─── */
+        main {
+            flex: 1;
+            max-width: 1100px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 32px 24px 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* ─── Scan bar ─── */
+        .scan-bar {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px 24px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .scan-bar label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-2);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .input-wrap {
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .input-wrap input {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-1);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            padding: 10px 14px;
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        .input-wrap input:focus {
+            border-color: var(--accent);
+        }
+
+        .input-wrap input::placeholder {
+            color: var(--text-3);
+        }
+
+        .scan-options {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-2);
+            cursor: pointer;
+            margin-bottom: 0;
+            padding: 10px 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            accent-color: var(--accent);
+            width: 14px;
+            height: 14px;
+        }
+
+        /* ─── Buttons ─── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            transition: all .18s ease;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-2);
+            box-shadow: 0 0 18px rgba(99, 102, 241, .45);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-2);
+            border: 1px solid var(--border);
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg-hover);
+            color: var(--text-1);
+            border-color: rgba(255, 255, 255, .15);
+        }
+
+        .btn-ghost:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+        }
+
+        .btn-green {
+            background: rgba(16, 185, 129, .15);
+            color: var(--green);
+            border: 1px solid rgba(16, 185, 129, .3);
+        }
+
+        .btn-green:hover {
+            background: rgba(16, 185, 129, .25);
+            box-shadow: 0 0 14px rgba(16, 185, 129, .3);
+        }
+
+        .btn-green:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-amber {
+            background: rgba(245, 158, 11, .13);
+            color: var(--amber);
+            border: 1px solid rgba(245, 158, 11, .3);
+        }
+
+        .btn-amber:hover {
+            background: rgba(245, 158, 11, .22);
+        }
+
+        .spinner {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, .25);
+            border-top-color: #fff;
+            animation: spin .7s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ─── Stats bar ─── */
+        .stats-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .stat-pill {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 12px;
+            color: var(--text-2);
+        }
+
+        .stat-pill strong {
+            color: var(--text-1);
+        }
+
+        /* ─── Filter row ─── */
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-row select,
+        .filter-row input[type="text"] {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-1);
+            font-family: inherit;
+            font-size: 13px;
+            padding: 8px 12px;
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        .filter-row select:focus,
+        .filter-row input:focus {
+            border-color: var(--accent);
+        }
+
+        .filter-row select option {
+            background: #1a1d27;
+        }
+
+        .filter-row .spacer {
+            flex: 1;
+        }
+
+        /* ─── Results ─── */
+        .results-wrap {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .results-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--bg);
+            padding: 10px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            color: var(--text-3);
+            text-align: left;
+        }
+
+        th:first-child {
+            width: 42px;
+            text-align: center;
+        }
+
+        td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr.row-item {
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        tr.row-item:hover {
+            background: var(--bg-hover);
+        }
+
+        tr.row-item.selected {
+            background: rgba(99, 102, 241, .08);
+        }
+
+        td.col-check {
+            text-align: center;
+        }
+
+        td.col-check input[type="checkbox"] {
+            accent-color: var(--accent);
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+        }
+
+        td.col-name {
+            max-width: 320px;
+        }
+
+        .link-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-1);
+            word-break: break-all;
+        }
+
+        .link-text {
+            font-size: 11px;
+            color: var(--text-3);
+            margin-top: 2px;
+        }
+
+        .link-url {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-3);
+            word-break: break-all;
+            max-width: 380px;
+        }
+
+        a.link-url-a {
+            color: var(--text-3);
+            text-decoration: none;
+        }
+
+        a.link-url-a:hover {
+            color: var(--accent-2);
+            text-decoration: underline;
+        }
+
+        /* Extension badges */
+        .ext-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+
+        .cat-archive {
+            background: rgba(245, 158, 11, .15);
+            color: var(--amber);
+            border: 1px solid rgba(245, 158, 11, .3);
+        }
+
+        .cat-video {
+            background: rgba(239, 68, 68, .15);
+            color: var(--red);
+            border: 1px solid rgba(239, 68, 68, .3);
+        }
+
+        .cat-audio {
+            background: rgba(167, 139, 250, .15);
+            color: var(--purple);
+            border: 1px solid rgba(167, 139, 250, .3);
+        }
+
+        .cat-document {
+            background: rgba(56, 189, 248, .15);
+            color: var(--sky);
+            border: 1px solid rgba(56, 189, 248, .3);
+        }
+
+        .cat-image {
+            background: rgba(244, 114, 182, .15);
+            color: var(--pink);
+            border: 1px solid rgba(244, 114, 182, .3);
+        }
+
+        .cat-software {
+            background: rgba(16, 185, 129, .15);
+            color: var(--green);
+            border: 1px solid rgba(16, 185, 129, .3);
+        }
+
+        .cat-torrent {
+            background: rgba(99, 102, 241, .15);
+            color: var(--accent);
+            border: 1px solid rgba(99, 102, 241, .3);
+        }
+
+        .cat-other {
+            background: rgba(255, 255, 255, .05);
+            color: var(--text-2);
+            border: 1px solid var(--border);
+        }
+
+        /* ─── Empty state ─── */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-3);
+        }
+
+        .empty-state .icon {
+            font-size: 52px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        .empty-state small {
+            font-size: 12px;
+        }
+
+        /* ─── Action bar ─── */
+        .action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(13, 15, 20, .96);
+            backdrop-filter: blur(16px);
+            border-top: 1px solid var(--border);
+            padding: 14px 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 20;
+        }
+
+        .action-bar .selected-count {
+            font-size: 13px;
+            color: var(--text-2);
+        }
+
+        .action-bar .selected-count strong {
+            color: var(--text-1);
+        }
+
+        .action-bar .spacer {
+            flex: 1;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--green);
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .4);
+            opacity: 0;
+            transition: opacity .3s;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 30;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── Header ── -->
+    <header>
+        <div class="logo-icon">🔗</div>
+        <div class="logo-text">
+            <h1>Link Hunter</h1>
+            <p>jDownloader URL Scraper</p>
+        </div>
+        <div class="spacer"></div>
+        <div class="header-hint">Paste a URL → Scan → Copy to jDownloader</div>
+    </header>
+
+    <!-- ── Main ── -->
+    <main>
+
+        <!-- Scan Bar -->
+        <div class="scan-bar">
+            <div class="input-wrap">
+                <label>Page URL to scan</label>
+                <input type="url" id="urlInput" placeholder="https://example.com/downloads" autocomplete="off"
+                    spellcheck="false" />
+            </div>
+            <div class="scan-options">
+                <label class="checkbox-label" title="Also include non-file links (all &lt;a href&gt; tags)">
+                    <input type="checkbox" id="chkAll" />
+                    Include all links
+                </label>
+                <div>
+                    <label style="margin-bottom:6px; display:block;"> </label>
+                    <button class="btn btn-primary" id="btnScan">🔍 Scan</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row" id="statsRow" style="display:none;">
+            <div class="stat-pill">Found: <strong id="statFound">0</strong></div>
+            <div class="stat-pill">Showing: <strong id="statShowing">0</strong></div>
+            <div class="stat-pill">Selected: <strong id="statSelected">0</strong></div>
+        </div>
+
+        <!-- Filter row -->
+        <div class="filter-row" id="filterRow" style="display:none;">
+            <select id="filterCat">
+                <option value="all">All types</option>
+                <option value="archive">📦 Archives</option>
+                <option value="video">🎬 Video</option>
+                <option value="audio">🎵 Audio</option>
+                <option value="document">📄 Documents</option>
+                <option value="image">🖼️ Images</option>
+                <option value="software">💾 Software</option>
+                <option value="torrent">🔵 Torrent</option>
+                <option value="other">🔗 Other</option>
+            </select>
+            <input type="text" id="filterKw" placeholder="🔍 Filter by filename or keyword…" style="min-width:240px;" />
+            <div class="spacer"></div>
+            <button class="btn btn-ghost" id="btnSelAll">☑ Select All</button>
+            <button class="btn btn-ghost" id="btnSelNone">☐ Deselect All</button>
+        </div>
+
+        <!-- Results -->
+        <div class="results-wrap" id="resultsWrap">
+            <div class="empty-state">
+                <div class="icon">🌐</div>
+                <p>Enter a URL above and click <strong>Scan</strong></p>
+                <small>Link Hunter will find all downloadable files on the page</small>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ── Action Bar ── -->
+    <div class="action-bar" id="actionBar" style="display:none;">
+        <span class="selected-count"><strong id="abCount">0</strong> links selected</span>
+        <div class="spacer"></div>
+        <button class="btn btn-ghost" id="btnSaveTxt" disabled>💾 Save .txt</button>
+        <button class="btn btn-green" id="btnCopyJD" disabled>📋 Copy to jDownloader</button>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ── State ─────────────────────────────────────────────────────────────────
+        let allLinks = [];
+        let filtered = [];
+        let selected = new Set(); // indices into allLinks
+
+        // ── Elements ──────────────────────────────────────────────────────────────
+        const urlInput = document.getElementById('urlInput');
+        const btnScan = document.getElementById('btnScan');
+        const chkAll = document.getElementById('chkAll');
+        const statsRow = document.getElementById('statsRow');
+        const filterRow = document.getElementById('filterRow');
+        const resultsWrap = document.getElementById('resultsWrap');
+        const actionBar = document.getElementById('actionBar');
+        const filterCat = document.getElementById('filterCat');
+        const filterKw = document.getElementById('filterKw');
+        const btnSelAll = document.getElementById('btnSelAll');
+        const btnSelNone = document.getElementById('btnSelNone');
+        const btnCopyJD = document.getElementById('btnCopyJD');
+        const btnSaveTxt = document.getElementById('btnSaveTxt');
+        const statFound = document.getElementById('statFound');
+        const statShowing = document.getElementById('statShowing');
+        const statSelected = document.getElementById('statSelected');
+        const abCount = document.getElementById('abCount');
+
+        // ── Scan ──────────────────────────────────────────────────────────────────
+        btnScan.addEventListener('click', doScan);
+        urlInput.addEventListener('keydown', e => { if (e.key === 'Enter') doScan(); });
+
+        async function doScan() {
+            const url = urlInput.value.trim();
+            if (!url) { urlInput.focus(); return; }
+
+            btnScan.disabled = true;
+            btnScan.innerHTML = '<div class="spinner"></div> Scanning…';
+            resultsWrap.innerHTML = `<div class="empty-state"><div class="icon">⏳</div><p>Fetching and scanning links…</p></div>`;
+            statsRow.style.display = 'none';
+            filterRow.style.display = 'none';
+            actionBar.style.display = 'none';
+            selected.clear();
+
+            try {
+                const resp = await fetch('/api/scrape', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, include_all: chkAll.checked })
+                });
+                const data = await resp.json();
+                if (!resp.ok) throw new Error(data.error || 'Server error');
+
+                allLinks = data.links || [];
+                applyFilters();
+                statsRow.style.display = 'flex';
+                filterRow.style.display = allLinks.length ? 'flex' : 'none';
+                actionBar.style.display = allLinks.length ? 'flex' : 'none';
+                statFound.textContent = allLinks.length;
+
+            } catch (err) {
+                resultsWrap.innerHTML = `<div class="empty-state"><div class="icon">❌</div><p>${escHtml(err.message)}</p></div>`;
+            } finally {
+                btnScan.disabled = false;
+                btnScan.innerHTML = '🔍 Scan';
+            }
+        }
+
+        // ── Filters ───────────────────────────────────────────────────────────────
+        filterCat.addEventListener('change', applyFilters);
+        filterKw.addEventListener('input', applyFilters);
+
+        function applyFilters() {
+            const cat = filterCat.value;
+            const kw = filterKw.value.trim().toLowerCase();
+            filtered = allLinks.filter((l, i) => {
+                if (cat !== 'all' && l.category !== cat) return false;
+                if (kw && !l.filename.toLowerCase().includes(kw) && !l.url.toLowerCase().includes(kw) && !l.text.toLowerCase().includes(kw)) return false;
+                return true;
+            });
+            renderTable();
+            updateStats();
+        }
+
+        // ── Render ────────────────────────────────────────────────────────────────
+        function renderTable() {
+            if (!filtered.length) {
+                resultsWrap.innerHTML = allLinks.length
+                    ? `<div class="empty-state"><div class="icon">🔍</div><p>No links match the current filter.</p></div>`
+                    : `<div class="empty-state"><div class="icon">😶</div><p>No downloadable links found on this page.</p><small>Try enabling "Include all links" for a wider scan.</small></div>`;
+                statShowing.textContent = 0;
+                return;
+            }
+
+            statShowing.textContent = filtered.length;
+
+            const rows = filtered.map((l, fi) => {
+                const globalIdx = allLinks.indexOf(l);
+                const isSel = selected.has(globalIdx);
+                return `<tr class="row-item${isSel ? ' selected' : ''}" data-idx="${globalIdx}">
+        <td class="col-check"><input type="checkbox" class="row-cb" data-idx="${globalIdx}" ${isSel ? 'checked' : ''} /></td>
+        <td class="col-name">
+          <div class="link-name">${escHtml(l.filename)}</div>
+          ${l.text ? `<div class="link-text">${escHtml(l.text.substring(0, 80))}</div>` : ''}
+        </td>
+        <td><span class="ext-badge cat-${l.category}">${escHtml(l.ext)}</span></td>
+        <td><a class="link-url-a" href="${escAttr(l.url)}" target="_blank" rel="noopener" title="${escAttr(l.url)}">${escHtml(truncUrl(l.url))}</a></td>
+      </tr>`;
+            }).join('');
+
+            resultsWrap.innerHTML = `
+      <div class="results-header">
+        <span style="font-weight:600; color:var(--text-1)">${filtered.length} link${filtered.length !== 1 ? 's' : ''} found</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Filename / Label</th>
+            <th>Type</th>
+            <th>URL</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">${rows}</tbody>
+      </table>`;
+
+            // Row click → toggle checkbox
+            document.querySelectorAll('tr.row-item').forEach(row => {
+                row.addEventListener('click', e => {
+                    if (e.target.tagName === 'A') return; // allow link click
+                    const idx = parseInt(row.dataset.idx);
+                    const cb = row.querySelector('input[type=checkbox]');
+                    if (selected.has(idx)) { selected.delete(idx); row.classList.remove('selected'); cb.checked = false; }
+                    else { selected.add(idx); row.classList.add('selected'); cb.checked = true; }
+                    updateStats();
+                });
+            });
+            document.querySelectorAll('.row-cb').forEach(cb => {
+                cb.addEventListener('change', e => {
+                    e.stopPropagation();
+                    const idx = parseInt(cb.dataset.idx);
+                    if (cb.checked) selected.add(idx); else selected.delete(idx);
+                    cb.closest('tr').classList.toggle('selected', cb.checked);
+                    updateStats();
+                });
+            });
+        }
+
+        // ── Select all/none ───────────────────────────────────────────────────────
+        btnSelAll.addEventListener('click', () => {
+            filtered.forEach(l => selected.add(allLinks.indexOf(l)));
+            renderTable(); updateStats();
+        });
+        btnSelNone.addEventListener('click', () => {
+            filtered.forEach(l => selected.delete(allLinks.indexOf(l)));
+            renderTable(); updateStats();
+        });
+
+        // ── Stats ─────────────────────────────────────────────────────────────────
+        function updateStats() {
+            statSelected.textContent = selected.size;
+            abCount.textContent = selected.size;
+            btnCopyJD.disabled = selected.size === 0;
+            btnSaveTxt.disabled = selected.size === 0;
+        }
+
+        // ── Export ────────────────────────────────────────────────────────────────
+        function selectedUrls() {
+            return [...selected].map(i => allLinks[i].url).join('\n');
+        }
+
+        btnCopyJD.addEventListener('click', async () => {
+            if (!selected.size) return;
+            try {
+                await navigator.clipboard.writeText(selectedUrls());
+                showToast(`✅ ${selected.size} URL${selected.size !== 1 ? 's' : ''} copied! Paste into jDownloader → Add Links`);
+            } catch {
+                // Fallback
+                const ta = document.createElement('textarea');
+                ta.value = selectedUrls();
+                document.body.appendChild(ta);
+                ta.select(); document.execCommand('copy');
+                document.body.removeChild(ta);
+                showToast(`✅ ${selected.size} URLs copied to clipboard!`);
+            }
+        });
+
+        btnSaveTxt.addEventListener('click', () => {
+            if (!selected.size) return;
+            const blob = new Blob([selectedUrls()], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'links_' + Date.now() + '.txt';
+            a.click();
+            showToast(`💾 Saved ${selected.size} URLs to file`);
+        });
+
+        // ── Toast ─────────────────────────────────────────────────────────────────
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // ── Helpers ───────────────────────────────────────────────────────────────
+        function escHtml(s) {
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        function escAttr(s) { return encodeURI(String(s)); }
+        function truncUrl(u, max = 70) { return u.length > max ? u.substring(0, max) + '…' : u; }
+    </script>
+</body>
+
+</html>
