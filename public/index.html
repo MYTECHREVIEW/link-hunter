@@ -627,6 +627,13 @@
                 <option value="torrent">🔵 Torrent</option>
                 <option value="other">🔗 Other</option>
             </select>
+            <select id="filterRegion">
+                <option value="all">🌍 All Regions</option>
+                <option value="usa">🇺🇸 USA</option>
+                <option value="europe">🇪🇺 Europe</option>
+                <option value="japan">🇯🇵 Japan</option>
+                <option value="world">🌐 World</option>
+            </select>
             <input type="text" id="filterKw" placeholder="🔍 Filter by filename or keyword…" style="min-width:240px;" />
             <div class="spacer"></div>
             <button class="btn btn-ghost" id="btnSelAll">☑ Select All</button>
@@ -670,6 +677,7 @@
         const resultsWrap = document.getElementById('resultsWrap');
         const actionBar = document.getElementById('actionBar');
         const filterCat = document.getElementById('filterCat');
+        const filterRegion = document.getElementById('filterRegion');
         const filterKw = document.getElementById('filterKw');
         const btnSelAll = document.getElementById('btnSelAll');
         const btnSelNone = document.getElementById('btnSelNone');
@@ -722,13 +730,32 @@
 
         // ── Filters ───────────────────────────────────────────────────────────────
         filterCat.addEventListener('change', applyFilters);
+        filterRegion.addEventListener('change', applyFilters);
         filterKw.addEventListener('input', applyFilters);
+
+        // ── Region tag patterns ────────────────────────────────────────────────────
+        const REGION_PATTERNS = {
+            usa: /\b(USA|US|\(U\)|\(USA\)|\[U\]|\[USA\]|United.States)\b/i,
+            europe: /\b(Europe|EUR|EU|\(E\)|\(EU\)|\(EUR\)|\(Europe\)|\[E\]|\[EU\]|\[Europe\])\b/i,
+            japan: /\b(Japan|JPN|JAP|\(J\)|\(JPN\)|\(JAP\)|\(Japan\)|\[J\]|\[JPN\]|\[Japan\])\b/i,
+            world: /\b(World|W|\(W\)|\(World\)|\[W\]|\[World\]|All.Regions)\b/i,
+        };
+
+        function detectRegion(link) {
+            const haystack = (link.filename + ' ' + link.text + ' ' + link.url);
+            for (const [region, rx] of Object.entries(REGION_PATTERNS)) {
+                if (rx.test(haystack)) return region;
+            }
+            return null;
+        }
 
         function applyFilters() {
             const cat = filterCat.value;
+            const region = filterRegion.value;
             const kw = filterKw.value.trim().toLowerCase();
-            filtered = allLinks.filter((l, i) => {
+            filtered = allLinks.filter((l) => {
                 if (cat !== 'all' && l.category !== cat) return false;
+                if (region !== 'all' && detectRegion(l) !== region) return false;
                 if (kw && !l.filename.toLowerCase().includes(kw) && !l.url.toLowerCase().includes(kw) && !l.text.toLowerCase().includes(kw)) return false;
                 return true;
             });
