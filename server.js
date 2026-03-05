@@ -74,7 +74,7 @@ app.post('/api/scrape', async (req, res) => {
     $('a[href]').each((_, el) => {
         const href = $(el).attr('href') || '';
         const text = $(el).text().trim() || $(el).attr('title') || '';
-        const hasDownloadAttr = el.attribs.hasOwnProperty('download');
+        const hasDownloadAttr = 'download' in (el.attribs || {});
         const abs = resolveUrl(url, href);
         if (!abs || seen.has(abs)) return;
 

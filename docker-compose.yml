@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  link-hunter:
+    build: .
+    container_name: link-hunter
+    restart: unless-stopped
+    ports:
+      - "${HOST_PORT:-3100}:3100"
+    environment:
+      - NODE_ENV=production
+      - PORT=3100
