@@ -6,7 +6,9 @@ services:
     container_name: link-hunter
     restart: unless-stopped
     ports:
-      - "${HOST_PORT:-3100}:3100"
+      - "${HOST_IP:-0.0.0.0}:${HOST_PORT:-3100}:3100"
     environment:
       - NODE_ENV=production
       - PORT=3100
+      # Set HOST_IP to your server's LAN IP so Portainer generates the correct link
+      # e.g. HOST_IP=10.10.0.100
