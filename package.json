@@ -1,6 +1,6 @@
 {
     "name": "link-hunter",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Scrapes download URLs from any webpage and exports them to jDownloader.",
     "main": "server.js",
     "scripts": {
