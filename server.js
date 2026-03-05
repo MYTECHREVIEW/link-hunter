@@ -9,9 +9,19 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const cors = require('cors');
 const path = require('path');
+const os = require('os');
 
 const app = express();
 const PORT = process.env.PORT || 3100;
+
+function getLanIp() {
+    for (const ifaces of Object.values(os.networkInterfaces())) {
+        for (const iface of ifaces) {
+            if (iface.family === 'IPv4' && !iface.internal) return iface.address;
+        }
+    }
+    return 'localhost';
+}
 
 app.use(cors());
 app.use(express.json());
@@ -106,5 +116,8 @@ app.post('/api/scrape', async (req, res) => {
 app.get('/api/health', (_, res) => res.json({ ok: true }));
 
 app.listen(PORT, () => {
-    console.log(`\n🔗 Link Hunter → http://localhost:${PORT}\n`);
+    const lan = getLanIp();
+    console.log(`\n🔗 Link Hunter`);
+    console.log(`   Local  → http://localhost:${PORT}`);
+    console.log(`   Network → http://${lan}:${PORT}\n`);
 });
